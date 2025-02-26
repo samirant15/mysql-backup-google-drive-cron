@@ -8,18 +8,20 @@ Simple cron job that creates a backup from a MySQL DB and uploads it to Google D
 ```
 npm install 
 ```
-or
-```
-yarn install 
-```
 
 2. ⚙️ Configure .env file
+- (You'll need a Google OAuth 2.0 Client ID, Secret & Redirect URI)
 
-3. 🚀 Start cron job
+3. 🛠️ Build the app
 ```
-yarn build 
+npm run build 
 ```
-then
+
+4. 🚀 Start cron job
 ```
-yarn start 
+npm run start 
+```
+or
+```
+pm2 start pm2/ecosystem.config.js
 ```
