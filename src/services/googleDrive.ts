@@ -24,6 +24,45 @@ export class GoogleDriveService {
     });
   }
 
+  async authenticate() {
+    const client = new google.auth.OAuth2(
+      process.env.GOOGLE_DRIVE_CLIENT_ID as string, 
+      process.env.GOOGLE_DRIVE_CLIENT_SECRET as string, 
+      process.env.GOOGLE_DRIVE_REDIRECT_URI as string, 
+    );
+
+    const authUrl = client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/drive.file'],
+      prompt: 'consent', // Ensures a refresh token is always returned
+    });
+
+    console.log(`🔑 Follow the instructions below to authorize this app`);
+    console.log(`1. Visit the following URL: ${authUrl}`);
+    console.log('2. Authenticate with your Google account');
+    console.log(`3. Click the gear icon ⚙️ in the top right corner`);
+    console.log(`4. Check "Use your own OAuth credentials" and enter:`);
+    console.log(`   - Client ID: ${process.env.GOOGLE_DRIVE_CLIENT_ID}`);
+    console.log(`   - Client Secret: ${process.env.GOOGLE_DRIVE_CLIENT_SECRET}`);
+    console.log(`5. Click "Exchange authorization code for tokens"`);
+    console.log(`6. Copy the "Refresh token" and paste it in the .env file`);
+    console.log(`7. Run the script again`);
+  }
+
+  async verifyAuthentication() {
+    try {
+      await this.searchFolder(process.env.BACKUP_FOLDER as string);
+      return true;
+    } catch (error) {
+      if (error instanceof Error && error.message === "invalid_grant") {
+        console.log(`❗️🔑 Refresh token expired, needs to re-authenticate`);
+        await this.authenticate();
+        return
+      }
+      throw error;
+    }
+  }
+
   async createFolder(path: string) {
     console.log(`📂🕒 Creating "${path}" folder in Drive`);
     const res = await this.driveClient.files.create({

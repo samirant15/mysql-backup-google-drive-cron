@@ -14,6 +14,10 @@ const backup = async () => {
     const mysqlDumpService = new MySQLDumpService();
     const googleDriveService = new GoogleDriveService();
 
+    // Verify if is authenticated
+    const isAuthorized = await googleDriveService.verifyAuthentication();
+    if (!isAuthorized) return;
+
     const fileName = `dump-${moment().format('YYYY-MM-DD')}.sql`;
     const localBackupFolder = path.resolve(__dirname, `../backups`);
     const localBackupPath = path.resolve(__dirname, `../backups/${fileName}`);
